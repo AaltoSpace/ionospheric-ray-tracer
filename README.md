@@ -1,5 +1,13 @@
-# ionospheric-ray-tracer
+# ionospheric-ray-tracer #
 Simulate the behavior of radio waves in planetary ionospheres by applying a ray tracing method
+
+# Background #
+This simulation package is created to support the research of the use of the Martian ionosphere for
+positioning systems on Mars. The package was initially developed by Rian van Gijlswijk in 2015 for his 
+masters' thesis on this subject at the Aalto University in Espoo, Finland. Currently the simulation is
+developed by the Space department of Aalto to further support space research and projects. 
+
+# Installation guide #
 
 ## Quickstart ##
 Run the main application in src/core/main.cpp to start the simulation.
@@ -42,3 +50,6 @@ cd ~/jsoncpp
 scons platform=linux-gcc
 sudo cp libs/linux-gcc-4.9.2/libjson_linux-gcc-4.9.2_libmt.so /usr/lib
 ```
+
+# User guide #
+

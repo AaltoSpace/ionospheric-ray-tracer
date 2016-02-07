@@ -62,6 +62,7 @@ namespace core {
 							<< "\t-c | --config\t Application config file\n"
 							<< "\t-i | --iterations\t The number of consecutive times every ray option should be run.\n"
 							<< "\t-h | --help\t This help.\n"
+							<< "\t-m | --magneticfield\t Include magnetic field effects.\n"
 							<< "\t-o | --output\t Path where output file should be stored.\n"
 							<< "\t-p | --parallelism\t Multithreading indicator.\n"
 							<< "\t-v | --verbose\t Verbose, display log output\n"
@@ -73,6 +74,9 @@ namespace core {
 
 			} else if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--config") == 0) {
 				_applicationConfigFile = argv[i+1];
+
+			} else if (strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--magneticfield") == 0) {
+				_includeMagneticField = true;
 
 			} else if (strcmp(argv[i], "-p") == 0 || strcmp(argv[i], "--parallelism") == 0) {
 				_parallelism = atoi(argv[i+1]);
@@ -368,6 +372,11 @@ namespace core {
 	int Application::getVerbosity() {
 
 		return _verbosity;
+	}
+
+	bool Application::includeMagneticFieldEffects() {
+
+		return _includeMagneticField;
 	}
 
 } /* namespace core */

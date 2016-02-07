@@ -31,6 +31,7 @@ namespace exporter {
 			double timeOfFlight = 0;
 			int beaconId = 0;
 			double aoa = 0;
+			double n = 0;
 			scene::GeometryType collisionType = scene::GeometryType::none;
 
 			static constexpr int MAX_DATASET_SIZE = 100;

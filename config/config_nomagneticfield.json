@@ -34,7 +34,7 @@
 			"z": 0
 		},
 		"type": "dipole",
-		"strength": 1000
+		"strength": 0
 	},
     "layerHeight": {
     	"constant": 1000,

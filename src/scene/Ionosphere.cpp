@@ -45,6 +45,8 @@ namespace scene {
 	 * of photochemical reactions (discussion with Cyril Simon Wedlund)
 	 */
 	void Ionosphere::setup() {
+
+		setCollisionFrequency();
 	}
 
 	/**
@@ -70,6 +72,10 @@ namespace scene {
 		phaseAdvance(r);
 		timeDelay(r);
 
+		if (Application::getInstance().includeMagneticFieldEffects()) {
+
+		}
+
 //		exportData(r);
 	}
 
@@ -90,9 +96,9 @@ namespace scene {
 		else
 			newR = r->d * ratio + mesh3d.normal * coefficient;
 
-		BOOST_LOG_TRIVIAL(debug) << std::fixed << "n1: " << r->previousRefractiveIndex << ", n2: " << refractiveIndex;
-		BOOST_LOG_TRIVIAL(debug) << "REFRACT Alt: " << std::setprecision(0) << getAltitude() << "\tr.d_i: " << r->d << "\tr.d_r: " << newR;
-		BOOST_LOG_TRIVIAL(debug) << "N: " << mesh3d.normal << "\tn1/n2: " << ratio << "\ttheta_i: " << theta_i*180/Constants::PI << "\ttheta_r: " << newR.angle(mesh3d.normal) * 180 / Constants::PI;
+//		BOOST_LOG_TRIVIAL(debug) << std::fixed << "n1: " << r->previousRefractiveIndex << ", n2: " << refractiveIndex;
+//		BOOST_LOG_TRIVIAL(debug) << "REFRACT Alt: " << std::setprecision(0) << getAltitude() << "\tr.d_i: " << r->d << "\tr.d_r: " << newR;
+//		BOOST_LOG_TRIVIAL(debug) << "N: " << mesh3d.normal << "\tn1/n2: " << ratio << "\ttheta_i: " << theta_i*180/Constants::PI << "\ttheta_r: " << newR.angle(mesh3d.normal) * 180 / Constants::PI;
 
 		r->d = newR.norm();
 		r->previousRefractiveIndex = refractiveIndex;
@@ -196,6 +202,13 @@ namespace scene {
 	}
 
 	/**
+	 * Include the effects of magnetic fields
+	 */
+	void calculateMagneticFieldEffects(Ray *r) {
+
+	}
+
+	/**
 	 * Calculate the plasma frequency which depends on the electron number density
 	 * which depends on the altitude (y). Use a chapman profile.
 	 * @unit: rad s^-1
@@ -257,24 +270,72 @@ namespace scene {
 	 */
 	double Ionosphere::getRefractiveIndex(Ray *r, refractiveMethod m) {
 
-		double n = 1.0;
+		return sqrt(getRefractiveIndexSquared(r, m, getPlasmaFrequency() ));
+	}
 
-		if (m == REFRACTION_KELSO) {
+	double Ionosphere::getRefractiveIndexSquared(Ray *r, refractiveMethod m, double plasmaFrequency) {
 
-			double X = pow(getPlasmaFrequency(), 2) / pow(2 * Constants::PI * r->frequency, 2);
-			double Z = getCollisionFrequency() / getPlasmaFrequency();
-			double a = 1.0 / (1 + pow(Z, 2));
+		double nSquared = 1.0;
+		double angularFrequency = 2 * Constants::PI * r->frequency;
+		double X = pow(plasmaFrequency, 2) / pow(angularFrequency, 2);
 
-			n = sqrt(1 - X);
-//			n = sqrt(0.5 * (1 + a * X + sqrt(pow(1 - a * X, 2) + pow(a, 2) * pow(X, 2) * pow(Z, 2))));
-		} else if (m == REFRACTION_AHDR) {
+		double theta = 0;
+		double Y = getGyroFrequency() / angularFrequency;
+		double Y_T = Y * sin(theta);
+		double Y_L = Y * cos(theta);
+		double Z = getCollisionFrequency() / angularFrequency;
+		double alpha = (pow(Y_T, 4) * (pow(1.0 - X, 2) - pow(Z, 2)))
+				/(4.0 * pow(pow(1.0-X, 2) + pow(Z, 2), 2))
+				+ pow(Y_L, 2);
+		// ((1-X)*Z) /(2*((1-X)^2 + Z^2)^2);
+		double beta = ((1.0 - X) * Z) / (2.0 * pow(pow(1.0 - X, 2) + pow(Z, 2), 2));
+		double E = complexSquareRoot(alpha, beta);
+//		double E = sqrt((sqrt(pow(alpha, 2) + pow(beta, 2)) + alpha)/2);
+		double phi = sqrt((sqrt(pow(alpha, 2) + pow(beta, 2)) - alpha)/2.0);
+		//W = (Y_T^2*(1-X)) / (2*((1-X)^2)+Z^2);
+		double W = (pow(Y_T, 2) * (1.0 - X))/(2 * (pow(1.0 - X, 2) + pow(Z, 2) ));
+		//Q = (Y_T^2*Z)     / (2*((1-X)^2)+Z^2);
+		double Q = (pow(Y_T, 2) * Z)/(2.0 * (pow(1.0 - X, 2) + pow(Z, 2) ));
+//			% Derive two pure Real variables M and N:
+//			M(1) = (1-W+E)/X;
+		double M_pos = (1.0 - W + E) / X;
+//			M(2) = (1-W-E)/X;
+		double M_neg = (1.0 - W - E) / X;
+//			N(1) = (-Z -Q + Theta)/X;
+		double N_pos = (-Z -Q + phi) / X;
+//			N(2) = (-Z -Q - Theta)/X;
+		double N_neg = (-Z -Q -phi) / X;
 
-			//n = 1 - X / (1);
+		if (std::isnan(M_pos) || std::isnan(M_neg) || std::isnan(N_pos) || std::isnan(N_neg)) {
+			return 0;
+		}
+//
+//			% Derive two pure Real variables A and B:
+		double A_pos = (1.0 - (M_pos/(pow(M_pos, 2) + pow(N_pos, 2) )  ));
+//			A(1) = (1 - (M(1)/(M(1)^2 + N(1)^2)));
+		double A_neg = (1.0 - (M_neg/(pow(M_neg, 2) + pow(N_neg, 2) )  ));
+//			A(2) = (1 - (M(2)/(M(2)^2 + N(2)^2)));
+//			B(1) = N(1)/(M(1)^2 + N(1)^2);
+		double B_pos = (N_pos/(pow(M_pos, 2) + pow(N_pos, 2) )  );
+//			B(2) = N(2)/(M(2)^2 + N(2)^2);
+		double B_neg = (N_neg/(pow(M_neg, 2) + pow(N_neg, 2) )  );
+
+		nSquared = complexSquareRoot(A_pos, B_pos);
+//		nSquared = sqrt((sqrt(pow(A_neg, 2) + pow(B_neg, 2)) + A_neg)/2);
+
+		return nSquared;
+	}
+
+	double Ionosphere::complexSquareRoot(double a, double b) {
+
+		double real = sqrt( (sqrt(pow(a, 2) + pow(b, 2)) + a) / 2.0 );
+//		double img = sqrt( (sqrt(pow(a, 2) + pow(b, 2)) - a) / 2 );
+
+		if (std::isnan(real)) {
+			BOOST_LOG_TRIVIAL(error) << "No real value found, all values are imaginary!";
 		}
 
-		BOOST_LOG_TRIVIAL(debug) << "omega:" << getPlasmaFrequency() << ", v: " << getCollisionFrequency();
-
-		return n;
+		return real;
 	}
 
 	/**
@@ -290,15 +351,34 @@ namespace scene {
 		return acos(abs(r->d * mesh3d.normal) / (r->d.magnitude() * mesh3d.normal.magnitude()));
 	}
 
+	double Ionosphere::getCollisionFrequency() {
+
+		return _collisionFrequency;
+	}
+
 	/**
 	 * Model the collision frequency
 	 * @unit Hz
 	 */
-	double Ionosphere::getCollisionFrequency() {
+	void Ionosphere::setCollisionFrequency() {
 
 		double nCO2 = Application::getInstance().getCelestialConfig().getDouble("surfaceNCO2")
 				* exp(-getAltitude() / Constants::NEUTRAL_SCALE_HEIGHT);
-		return 1.0436e-07 * nCO2;
+		_collisionFrequency = 1.0436e-07 * nCO2;
+	}
+
+	void Ionosphere::setCollisionFrequency(double frequency) {
+
+		_collisionFrequency = frequency;
+	}
+
+	/**
+	 * Calculate the electron angular gyrofrequency [rad s^-1]
+	 */
+	double Ionosphere::getGyroFrequency() {
+
+		double magneticFieldStrength = Application::getInstance().getApplicationConfig().getObject("magneticFields")["strength"].asDouble();
+		return Constants::ELEMENTARY_CHARGE * magneticFieldStrength / Constants::ELECTRON_MASS;
 	}
 
 	/**

@@ -26,6 +26,12 @@ namespace scene {
 				REFRACTION_KELSO,		// According to Kelso, 1964
 				REFRACTION_AHDR			// Appleton-Hartree Dispersion Relation
 			};
+			enum waveMode {
+				O_MODE,
+				X_MODE,
+				L_MODE,
+				R_MODE
+			};
 			void setup();
 
 			/**
@@ -51,6 +57,11 @@ namespace scene {
 			void phaseAdvance(Ray *r);
 			void timeDelay(Ray *r);
 			void exportData(Ray *r);
+
+			/**
+			 * Include the effects of magnetic fields
+			 */
+			void calculateMagneticFieldEffects(Ray *r);
 
 			/**
 			 * Calculate the plasma frequency which depends on the electron number density
@@ -88,6 +99,9 @@ namespace scene {
 			 * dispersion relation. Only applies to a magnetized cold plasma.
 			 */
 			double getRefractiveIndex(Ray *r, refractiveMethod m);
+			double getRefractiveIndexSquared(Ray *r, refractiveMethod m, double plasmaFrequency);
+			double getRefractiveIndexSquared(Ray *r, refractiveMethod m, double plasmaFrequency, waveMode mode);
+			double complexSquareRoot(double a, double b);
 
 			/**
 			 * The incident angle of a ray with respect to the ionospheric layer. This angle depends
@@ -102,6 +116,13 @@ namespace scene {
 			 * @unit Hz
 			 */
 			double getCollisionFrequency();
+			void setCollisionFrequency();
+			void setCollisionFrequency(double freq);
+
+			/**
+			 * Calculate the electron angular gyrofrequency [rad s^-1]
+			 */
+			double getGyroFrequency();
 
 			/**
 			 * Calculate the total electron content
@@ -117,6 +138,7 @@ namespace scene {
 		private:
 			double _electronNumberDensity = 0;	// m^-3
 			double _peakElectronDensity = 0;	// m^-3
+			double _collisionFrequency = 0;		// s^-1
 	};
 
 } /* namespace scene */

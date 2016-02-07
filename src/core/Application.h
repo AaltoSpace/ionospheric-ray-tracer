@@ -57,6 +57,7 @@ namespace core {
 			void setCelestialConfig(Config conf);
 			void setApplicationConfig(Config conf);
 			int getVerbosity();
+			bool includeMagneticFieldEffects();
 			int numWorkers = 0;
 
 		private:
@@ -69,6 +70,7 @@ namespace core {
 			void createScene();
 			void flushScene();
 			bool _isRunning;
+			bool _includeMagneticField = false;
 			int _numTracings;
 			Config _celestialConfig;
 			Config _applicationConfig;

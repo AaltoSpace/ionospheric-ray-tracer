@@ -66,14 +66,15 @@ namespace {
 
 		double nSquared = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_AHDR, PLASMA_FREQUENCY);
 
-		ASSERT_EQ(0, nSquared);
+		ASSERT_GT(nSquared, 0);
+		ASSERT_LT(nSquared, 1);
 	}
 
 	/**
 	 * O wave: normal wave. Simulate the index of refraction as a function of
 	 * wave frequency.
 	 */
-	TEST_F(IonosphereMagneticFieldTest, O_WaveTest) {
+	TEST_F(IonosphereMagneticFieldTest, O_WaveExportTest) {
 
 		list<Data> dataSet;
 		Ionosphere io;
@@ -87,7 +88,7 @@ namespace {
 			r.frequency = f;
 			d.frequency = f;
 			d.omega_p = PLASMA_FREQUENCY;
-			d.n = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_KELSO, PLASMA_FREQUENCY);
+			d.n = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_AHDR, PLASMA_FREQUENCY);
 			dataSet.push_back(d);
 
 			if ((f % (increment*10)) == 0) {
@@ -103,7 +104,7 @@ namespace {
 	 * X wave: extraordinary wave. Simulate the index of refraction as a function of
 	 * wave frequency.
 	 */
-	TEST_F(IonosphereMagneticFieldTest, X_WaveTest) {
+	TEST_F(IonosphereMagneticFieldTest, X_WaveExportTest) {
 
 		list<Data> dataSet;
 		Ionosphere io;

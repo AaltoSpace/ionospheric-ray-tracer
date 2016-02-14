@@ -88,18 +88,12 @@ namespace {
 
 	TEST_F(IonosphereTest, RefractiveIndexSimple) {
 
-		ASSERT_NEAR(0.94, io.getRefractiveIndex(&r, Ionosphere::REFRACTION_SIMPLE), 0.01);
-		ASSERT_NEAR(1.0, io2.getRefractiveIndex(&r, Ionosphere::REFRACTION_SIMPLE), 0.01);
-	}
-
-	TEST_F(IonosphereTest, RefractiveIndexKelso) {
-
-		ASSERT_NEAR(0.972, io.getRefractiveIndex(&r, Ionosphere::REFRACTION_KELSO), 0.01);
-		ASSERT_TRUE(std::isnan(io2.getRefractiveIndex(&r, Ionosphere::REFRACTION_KELSO)));
-		ASSERT_NEAR(1, io3.getRefractiveIndex(&r, Ionosphere::REFRACTION_KELSO), 0.01);
-		ASSERT_NEAR(0.982, io.getRefractiveIndex(&r2, Ionosphere::REFRACTION_KELSO), 0.01);
-		ASSERT_NEAR(0.440, io2.getRefractiveIndex(&r2, Ionosphere::REFRACTION_KELSO), 0.01);
-		ASSERT_NEAR(1, io3.getRefractiveIndex(&r2, Ionosphere::REFRACTION_KELSO), 0.01);
+		ASSERT_NEAR(0.972, io.getRefractiveIndex(&r, Ionosphere::REFRACTION_SIMPLE), 0.01);
+		ASSERT_TRUE(std::isnan(io2.getRefractiveIndex(&r, Ionosphere::REFRACTION_SIMPLE)));
+		ASSERT_NEAR(1, io3.getRefractiveIndex(&r, Ionosphere::REFRACTION_SIMPLE), 0.01);
+		ASSERT_NEAR(0.982, io.getRefractiveIndex(&r2, Ionosphere::REFRACTION_SIMPLE), 0.01);
+		ASSERT_NEAR(0.440, io2.getRefractiveIndex(&r2, Ionosphere::REFRACTION_SIMPLE), 0.01);
+		ASSERT_NEAR(1, io3.getRefractiveIndex(&r2, Ionosphere::REFRACTION_SIMPLE), 0.01);
 	}
 
 	TEST_F(IonosphereTest, IncidentAngle) {
@@ -378,7 +372,7 @@ namespace {
 			io.setMesh(mesh);
 			d.n_e = io.getElectronNumberDensity();
 			d.omega_p = io.getPlasmaFrequency();
-			d.mu_r_sqrt = io.getRefractiveIndex(&r, Ionosphere::REFRACTION_KELSO);
+			d.mu_r_sqrt = io.getRefractiveIndex(&r, Ionosphere::REFRACTION_SIMPLE);
 			dataSet.push_back(d);
 		}
 		MatlabExporter me;

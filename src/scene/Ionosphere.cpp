@@ -85,7 +85,7 @@ namespace scene {
 	 */
 	void Ionosphere::refract(Ray *r) {
 
-		double refractiveIndex = getRefractiveIndex(r, Ionosphere::REFRACTION_KELSO);
+		double refractiveIndex = getRefractiveIndex(r, Ionosphere::REFRACTION_SIMPLE);
 		double theta_i = getIncidentAngle(r);
 
 		double ratio = r->previousRefractiveIndex/refractiveIndex;
@@ -110,7 +110,7 @@ namespace scene {
 	 */
 	void Ionosphere::reflect(Ray *r) {
 
-		double refractiveIndex = getRefractiveIndex(r, Ionosphere::REFRACTION_KELSO);
+		double refractiveIndex = getRefractiveIndex(r, Ionosphere::REFRACTION_SIMPLE);
 		double theta_i = getIncidentAngle(r);
 
 		Vector3d newR = Vector3d();
@@ -264,8 +264,7 @@ namespace scene {
 
 	/**
 	 * Compute the plasma refractive index. Three refractive methods are supplied:
-	 * - SIMPLE:
-	 * - KELSO: The simplified method as described in Kelso, 1964, p.208
+	 * - SIMPLE: The simplified method as described in Kelso, 1964, p.208
 	 * - AHDR: Refractive index according to the Appleton-Hartree
 	 * dispersion relation. Only applies to a magnetized cold plasma.
 	 */
@@ -275,6 +274,26 @@ namespace scene {
 	}
 
 	double Ionosphere::getRefractiveIndexSquared(Ray *r, refractiveMethod m, double plasmaFrequency) {
+
+		if (m == REFRACTION_SIMPLE) {
+			return getRefractiveIndexSquaredSimple(r, plasmaFrequency);
+		} else if (m == REFRACTION_AHDR) {
+			return getRefractiveIndexSquaredAHDR(r, plasmaFrequency);
+		} else {
+			BOOST_LOG_TRIVIAL(error) << "The given refractive method does not exist!";
+		}
+	}
+
+	double Ionosphere::getRefractiveIndexSquaredSimple(Ray *r, double plasmaFrequency) {
+
+		double X = pow(getPlasmaFrequency(), 2) / pow(2 * Constants::PI * r->frequency, 2);
+		double Z = getCollisionFrequency() / getPlasmaFrequency();
+		double a = 1.0 / (1 + pow(Z, 2));
+
+		return 1 - X;
+	}
+
+	double Ionosphere::getRefractiveIndexSquaredAHDR(Ray *r, double plasmaFrequency) {
 
 		double nSquared = 1.0;
 		double angularFrequency = 2 * Constants::PI * r->frequency;
@@ -389,7 +408,7 @@ namespace scene {
 		r->behaviour = Ray::wave_none;
 
 		double criticalAngle;
-		double refractiveIndex = getRefractiveIndex(r, Ionosphere::REFRACTION_KELSO);
+		double refractiveIndex = getRefractiveIndex(r, Ionosphere::REFRACTION_SIMPLE);
 		double incidentAngle = getIncidentAngle(r);
 		double angularFrequency = 2 * Constants::PI * r->frequency;
 		double epsilon = 1e-5;

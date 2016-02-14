@@ -22,8 +22,7 @@ namespace scene {
 			Ionosphere(Plane3d mesh);
 			Ionosphere(Vector3d n, Vector3d c);
 			enum refractiveMethod {
-				REFRACTION_SIMPLE,
-				REFRACTION_KELSO,		// According to Kelso, 1964
+				REFRACTION_SIMPLE,		// According to Kelso, 1964
 				REFRACTION_AHDR			// Appleton-Hartree Dispersion Relation
 			};
 			enum waveMode {
@@ -100,8 +99,8 @@ namespace scene {
 			 */
 			double getRefractiveIndex(Ray *r, refractiveMethod m);
 			double getRefractiveIndexSquared(Ray *r, refractiveMethod m, double plasmaFrequency);
-			double getRefractiveIndexSquared(Ray *r, refractiveMethod m, double plasmaFrequency, waveMode mode);
-			double complexSquareRoot(double a, double b);
+			double getRefractiveIndexSquaredSimple(Ray *r, double plasmaFrequency);
+			double getRefractiveIndexSquaredAHDR(Ray *r, double plasmaFrequency);
 
 			/**
 			 * The incident angle of a ray with respect to the ionospheric layer. This angle depends

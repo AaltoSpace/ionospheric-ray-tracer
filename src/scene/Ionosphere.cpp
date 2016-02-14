@@ -11,11 +11,12 @@
 #include <iostream>
 #include "Ionosphere.h"
 #include "GeometryType.h"
-#include "../math/Constants.h"
-#include "../exporter/Data.h"
 #include "../core/Application.h"
 #include "../core/Config.h"
+#include "../exporter/Data.h"
 #include "../math/NormalDistribution.h"
+#include "../math/Constants.h"
+#include "../math/ComplexNumberHelper.h"
 
 namespace raytracer {
 namespace scene {
@@ -289,9 +290,8 @@ namespace scene {
 				+ pow(Y_L, 2);
 		// ((1-X)*Z) /(2*((1-X)^2 + Z^2)^2);
 		double beta = ((1.0 - X) * Z) / (2.0 * pow(pow(1.0 - X, 2) + pow(Z, 2), 2));
-		double E = complexSquareRoot(alpha, beta);
-//		double E = sqrt((sqrt(pow(alpha, 2) + pow(beta, 2)) + alpha)/2);
-		double phi = sqrt((sqrt(pow(alpha, 2) + pow(beta, 2)) - alpha)/2.0);
+		double E = ComplexNumberHelper::getInstance().complexSquareRoot(alpha, beta).real();
+		double phi = ComplexNumberHelper::getInstance().complexSquareRoot(alpha, beta).imag();
 		//W = (Y_T^2*(1-X)) / (2*((1-X)^2)+Z^2);
 		double W = (pow(Y_T, 2) * (1.0 - X))/(2 * (pow(1.0 - X, 2) + pow(Z, 2) ));
 		//Q = (Y_T^2*Z)     / (2*((1-X)^2)+Z^2);
@@ -320,22 +320,9 @@ namespace scene {
 //			B(2) = N(2)/(M(2)^2 + N(2)^2);
 		double B_neg = (N_neg/(pow(M_neg, 2) + pow(N_neg, 2) )  );
 
-		nSquared = complexSquareRoot(A_pos, B_pos);
-//		nSquared = sqrt((sqrt(pow(A_neg, 2) + pow(B_neg, 2)) + A_neg)/2);
+		nSquared = ComplexNumberHelper::getInstance().complexSquareRoot(A_pos, B_pos).real();
 
 		return nSquared;
-	}
-
-	double Ionosphere::complexSquareRoot(double a, double b) {
-
-		double real = sqrt( (sqrt(pow(a, 2) + pow(b, 2)) + a) / 2.0 );
-//		double img = sqrt( (sqrt(pow(a, 2) + pow(b, 2)) - a) / 2 );
-
-		if (std::isnan(real)) {
-			BOOST_LOG_TRIVIAL(error) << "No real value found, all values are imaginary!";
-		}
-
-		return real;
 	}
 
 	/**

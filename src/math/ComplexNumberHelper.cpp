@@ -18,7 +18,7 @@ namespace math {
 	ComplexDouble ComplexNumberHelper::complexSquareRoot(double a, double b) {
 
 		double real = sqrt( (sqrt(pow(a, 2) + pow(b, 2)) + a) / 2.0 );
-		double imag = sqrt( (sqrt(pow(a, 2) + pow(b, 2)) - a) / 2 );
+		double imag = sqrt( (sqrt(pow(a, 2) + pow(b, 2)) - a) / 2.0 );
 
 		if (std::isnan(real)) {
 			BOOST_LOG_TRIVIAL(error) << "No real value found, all values are imaginary!";

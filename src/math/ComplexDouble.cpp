@@ -18,7 +18,7 @@ namespace math {
 		imaginaryNumber = i;
 	}
 
-	double ComplexDouble::real() {
+	double ComplexDouble::real() const {
 		return realNumber;
 	}
 
@@ -26,7 +26,7 @@ namespace math {
 		realNumber = r;
 	}
 
-	double ComplexDouble::imag() {
+	double ComplexDouble::imag() const {
 		return imaginaryNumber;
 	}
 

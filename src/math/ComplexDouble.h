@@ -10,6 +10,9 @@
 
 #include <cmath>
 
+#include <iostream>
+#include <iomanip>
+
 namespace raytracer {
 namespace math {
 
@@ -18,10 +21,15 @@ namespace math {
 		public:
 			ComplexDouble();
 			ComplexDouble(double r, double i);
-			double real();
-			double imag();
+			double real() const;
+			double imag() const;
 			void real(double r);
 			void imag(double i);
+
+			friend std::ostream& operator<<(std::ostream &strm, const raytracer::math::ComplexDouble &v) {
+				return strm << std::fixed << std::setprecision(4)
+					<< v.real() << "+" << v.imag() << "i";
+			}
 
 		private:
 			double realNumber;

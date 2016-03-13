@@ -9,6 +9,7 @@
 #define IONOSPHERE_H_
 
 #include "Geometry.h"
+#include "../math/Vector2d.h"
 
 namespace raytracer {
 namespace scene {
@@ -89,6 +90,7 @@ namespace scene {
 			 * @unit: particles m^-3
 			 */
 			double getElectronNumberDensity();
+			void setElectronNumberDensity(double n_e);
 
 			/**
 			 * Compute the plasma refractive index. Three refractive methods are supplied:
@@ -100,7 +102,7 @@ namespace scene {
 			double getRefractiveIndex(Ray *r, refractiveMethod m);
 			double getRefractiveIndexSquared(Ray *r, refractiveMethod m, double plasmaFrequency);
 			double getRefractiveIndexSquaredSimple(Ray *r, double plasmaFrequency);
-			double getRefractiveIndexSquaredAHDR(Ray *r, double plasmaFrequency);
+			Vector2d getRefractiveIndexSquaredAHDR(Ray *r, double plasmaFrequency);
 
 			/**
 			 * The incident angle of a ray with respect to the ionospheric layer. This angle depends
@@ -133,6 +135,8 @@ namespace scene {
 			double layerHeight = 0;
 			double electronDensityVariability = 0;
 			static constexpr double surfaceCollisionFrequency = 4.5e10;	// s^-1
+
+			double angleToMagField = 0;
 
 		private:
 			double _electronNumberDensity = 0;	// m^-3

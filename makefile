@@ -31,7 +31,7 @@ $(TESTEXE):
 
 # Cleanup
 clean:
-	@echo 'Cleaning:'
+	@echo 'Cleaning executables:'
 	@if [ -f $(EXE) ]; \
 	then \
 		rm $(EXE); \
@@ -42,5 +42,7 @@ clean:
 		rm $(TESTEXE); \
 		echo 'Removed $(TESTEXE)'; \
 	fi;
+	@echo 'Cleaning debug directory:'
+	rm -rf Debug/*
 	@echo 'Finished cleaning'
 	@echo ' '

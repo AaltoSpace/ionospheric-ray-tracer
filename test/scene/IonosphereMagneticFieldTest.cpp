@@ -23,41 +23,50 @@ namespace {
 				conf = Config("config/scenario_test.json");
 				Application::getInstance().setApplicationConfig(appConf);
 				Application::getInstance().setCelestialConfig(conf);
+
+				io.setup();
+				io.layerHeight = 1000;
+				io.superimposeElectronNumberDensity(2.5e11, 125e3, 11.1e3);
 			}
 
 			Config conf, appConf;
+			Ionosphere io;
 	};
 
 	TEST_F(IonosphereMagneticFieldTest, VacuumTest) {
 
-		Ionosphere io;
 		Ray r;
 		r.frequency = 1;
 
 		io.setCollisionFrequency(0);
+		io.setElectronNumberDensity(0);
 
 		double nSquared = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_AHDR, 0);
 
-		ASSERT_EQ(0, nSquared);
+		ASSERT_EQ(1, nSquared);
 	}
 
 	TEST_F(IonosphereMagneticFieldTest, NonMagnetizedNonCollisional) {
 
-		Ionosphere io;
 		Ray r;
-		r.frequency = 1;
 		double PLASMA_FREQUENCY = 2.8e7;
+		r.frequency = PLASMA_FREQUENCY / (2 * Constants::PI)+1;
 
 		io.setCollisionFrequency(0);
 
 		double nSquared = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_AHDR, PLASMA_FREQUENCY);
 
-		ASSERT_EQ(0, nSquared);
+		ASSERT_NEAR(0, nSquared, 1e-3);
+
+		r.frequency = 1;
+
+		nSquared = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_AHDR, PLASMA_FREQUENCY);
+
+		ASSERT_LT(0, nSquared);
 	}
 
 	TEST_F(IonosphereMagneticFieldTest, NonMagnetizedNonCollisional2) {
 
-		Ionosphere io;
 		Ray r;
 		double PLASMA_FREQUENCY = 2.8e7;
 		r.frequency = 4.5e6; // slightly above plasma frequency, so that X < 1
@@ -77,22 +86,24 @@ namespace {
 	TEST_F(IonosphereMagneticFieldTest, O_WaveExportTest) {
 
 		list<Data> dataSet;
-		Ionosphere io;
+		Ionosphere io2;
 		Ray r;
 		int increment = 1;
-		int MAX = 100e6;
+		int MAX = 30e6;
 		double PLASMA_FREQUENCY = 2.8e7;
+		io2.setElectronNumberDensity(0);
 
 		for (int f = 0; f < MAX; f += increment) {
-			Data d;
 			r.frequency = f;
+			Vector2d result = io2.getRefractiveIndexSquaredAHDR(&r, PLASMA_FREQUENCY);
+			Data d;
 			d.frequency = f;
 			d.omega_p = PLASMA_FREQUENCY;
-			d.n = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_AHDR, PLASMA_FREQUENCY);
+			d.n = result.x;
 			dataSet.push_back(d);
 
-			if ((f % (increment*10)) == 0) {
-				increment *= 10;
+			if ((f % (increment*128)) == 0) {
+				increment *= 2;
 			}
 		}
 
@@ -106,27 +117,38 @@ namespace {
 	 */
 	TEST_F(IonosphereMagneticFieldTest, X_WaveExportTest) {
 
-		list<Data> dataSet;
-		Ionosphere io;
+		appConf = Config("config/config_simplemagneticfield.json");
+		Application::getInstance().setApplicationConfig(appConf);
+
+		Ionosphere io3;
+		list<Data> dataSet, dataSet2;
 		Ray r;
 		int increment = 1;
-		int MAX = 100e6;
+		int MAX = 30e6;
 		double PLASMA_FREQUENCY = 2.8e7;
+		io3.angleToMagField = Constants::PI/2.0;
+		io3.setElectronNumberDensity(0);
 
 		for (int f = 0; f < MAX; f += increment) {
-			Data d;
 			r.frequency = f;
+			Vector2d result = io3.getRefractiveIndexSquaredAHDR(&r, PLASMA_FREQUENCY);
+			Data d, d2;
 			d.frequency = f;
 			d.omega_p = PLASMA_FREQUENCY;
-			d.n = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_AHDR, PLASMA_FREQUENCY);
+			d.n = result.x;
 			dataSet.push_back(d);
+			d2.frequency = f;
+			d2.omega_p = PLASMA_FREQUENCY;
+			d2.n = result.y;
+			dataSet2.push_back(d2);
 
-			if ((f % (increment*10)) == 0) {
-				increment *= 10;
+			if ((f % (increment*128)) == 0) {
+				increment *= 2;
 			}
 		}
 
 		MagneticFieldExporter mfe;
-		mfe.dump("Debug/data_IonosphereX_WaveTest.dat", dataSet);
+		mfe.dump("Debug/data_IonosphereX_WaveTest_1.dat", dataSet);
+		mfe.dump("Debug/data_IonosphereX_WaveTest_2.dat", dataSet2);
 	}
 }

@@ -241,6 +241,11 @@ namespace scene {
 		return _electronNumberDensity;
 	}
 
+	void Ionosphere::setElectronNumberDensity(double n_e) {
+
+		_electronNumberDensity = n_e;
+	}
+
 	/**
 	 * Add electrons with a certain density to the electron density already available in this layer.
 	 * This approach allows the superposition of multiple ionospheric profiles into one layer.
@@ -278,7 +283,7 @@ namespace scene {
 		if (m == REFRACTION_SIMPLE) {
 			return getRefractiveIndexSquaredSimple(r, plasmaFrequency);
 		} else if (m == REFRACTION_AHDR) {
-			return getRefractiveIndexSquaredAHDR(r, plasmaFrequency);
+			return getRefractiveIndexSquaredAHDR(r, plasmaFrequency).x;
 		} else {
 			BOOST_LOG_TRIVIAL(error) << "The given refractive method does not exist!";
 		}
@@ -293,55 +298,67 @@ namespace scene {
 		return 1 - X;
 	}
 
-	double Ionosphere::getRefractiveIndexSquaredAHDR(Ray *r, double plasmaFrequency) {
+	Vector2d Ionosphere::getRefractiveIndexSquaredAHDR(Ray *r, double plasmaFrequency) {
 
-		double nSquared = 1.0;
 		double angularFrequency = 2 * Constants::PI * r->frequency;
 		double X = pow(plasmaFrequency, 2) / pow(angularFrequency, 2);
 
-		double theta = 0;
 		double Y = getGyroFrequency() / angularFrequency;
-		double Y_T = Y * sin(theta);
-		double Y_L = Y * cos(theta);
+		double Y_T = 0;
+		double Y_L = 0;
+		if (Y > 0) {
+			double BTot = Application::getInstance().getApplicationConfig()
+					.getObject("magneticFields")["strength"].asDouble();
+			Vector3d k = Vector3d(0, 0, 1);
+			Vector3d B = Vector3d(BTot * sin(angleToMagField), 0, BTot * cos(angleToMagField));
+			Y_T = Y * k.cross(B).magnitude() / BTot;
+			Y_L = Y * k.dot(B) / BTot;
+		}
 		double Z = getCollisionFrequency() / angularFrequency;
+		BOOST_LOG_TRIVIAL(info) << "X:" << X << ",Y:" << Y << ",Z:" << Z << ",YT:" << Y_T;
 		double alpha = (pow(Y_T, 4) * (pow(1.0 - X, 2) - pow(Z, 2)))
 				/(4.0 * pow(pow(1.0-X, 2) + pow(Z, 2), 2))
 				+ pow(Y_L, 2);
 		// ((1-X)*Z) /(2*((1-X)^2 + Z^2)^2);
 		double beta = ((1.0 - X) * Z) / (2.0 * pow(pow(1.0 - X, 2) + pow(Z, 2), 2));
-		double E = ComplexNumberHelper::getInstance().complexSquareRoot(alpha, beta).real();
-		double phi = ComplexNumberHelper::getInstance().complexSquareRoot(alpha, beta).imag();
+		ComplexDouble Ephi = ComplexNumberHelper::getInstance().complexSquareRoot(alpha, beta);
+		double E = Ephi.real();
+		double phi = Ephi.imag();
+		BOOST_LOG_TRIVIAL(info) << "a:" << alpha << ",b:" << beta << ",E:" << E << ",phi:" << phi;
 		//W = (Y_T^2*(1-X)) / (2*((1-X)^2)+Z^2);
 		double W = (pow(Y_T, 2) * (1.0 - X))/(2 * (pow(1.0 - X, 2) + pow(Z, 2) ));
 		//Q = (Y_T^2*Z)     / (2*((1-X)^2)+Z^2);
 		double Q = (pow(Y_T, 2) * Z)/(2.0 * (pow(1.0 - X, 2) + pow(Z, 2) ));
 //			% Derive two pure Real variables M and N:
 //			M(1) = (1-W+E)/X;
-		double M_pos = (1.0 - W + E) / X;
+		double M_1 = (1.0 - W + E) / X;
 //			M(2) = (1-W-E)/X;
-		double M_neg = (1.0 - W - E) / X;
+		double M_2 = (1.0 - W - E) / X;
 //			N(1) = (-Z -Q + Theta)/X;
-		double N_pos = (-Z -Q + phi) / X;
+		double N_1 = (-Z -Q + phi) / X;
 //			N(2) = (-Z -Q - Theta)/X;
-		double N_neg = (-Z -Q -phi) / X;
+		double N_2 = (-Z -Q - phi) / X;
 
-		if (std::isnan(M_pos) || std::isnan(M_neg) || std::isnan(N_pos) || std::isnan(N_neg)) {
-			return 0;
-		}
-//
-//			% Derive two pure Real variables A and B:
-		double A_pos = (1.0 - (M_pos/(pow(M_pos, 2) + pow(N_pos, 2) )  ));
+		BOOST_LOG_TRIVIAL(info) << "M1:" << M_1 << ",M2:" << M_2 << ",N1:" << N_1 << ",N2:" << N_2;
+
+//			Derive two pure Real variables A and B:
 //			A(1) = (1 - (M(1)/(M(1)^2 + N(1)^2)));
-		double A_neg = (1.0 - (M_neg/(pow(M_neg, 2) + pow(N_neg, 2) )  ));
+		double A_1 = (1.0 - (M_1/(pow(M_1, 2) + pow(N_1, 2) )  ));
 //			A(2) = (1 - (M(2)/(M(2)^2 + N(2)^2)));
+		double A_2 = (1.0 - (M_2/(pow(M_2, 2) + pow(N_2, 2) )  ));
 //			B(1) = N(1)/(M(1)^2 + N(1)^2);
-		double B_pos = (N_pos/(pow(M_pos, 2) + pow(N_pos, 2) )  );
+		double B_1 = (N_1/(pow(M_1, 2) + pow(N_1, 2) )  );
 //			B(2) = N(2)/(M(2)^2 + N(2)^2);
-		double B_neg = (N_neg/(pow(M_neg, 2) + pow(N_neg, 2) )  );
+		double B_2 = (N_2/(pow(M_2, 2) + pow(N_2, 2) )  );
 
-		nSquared = ComplexNumberHelper::getInstance().complexSquareRoot(A_pos, B_pos).real();
+		BOOST_LOG_TRIVIAL(info) << "1:" << ComplexNumberHelper::getInstance().complexSquareRoot(A_1, B_1);
+		BOOST_LOG_TRIVIAL(info) << "2:" << ComplexNumberHelper::getInstance().complexSquareRoot(A_2, B_2);
 
-		return nSquared;
+		Vector2d result;
+		result.x = ComplexNumberHelper::getInstance().complexSquareRoot(A_1, B_1).real();
+		result.y = ComplexNumberHelper::getInstance().complexSquareRoot(A_2, B_2).real();
+		return result;
+
 	}
 
 	/**

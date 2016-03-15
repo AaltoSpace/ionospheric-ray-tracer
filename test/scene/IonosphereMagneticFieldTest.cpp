@@ -102,7 +102,7 @@ namespace {
 			d.n = result.x;
 			dataSet.push_back(d);
 
-			if ((f % (increment*128)) == 0) {
+			if ((f % (increment*512)) == 0) {
 				increment *= 2;
 			}
 		}
@@ -142,7 +142,7 @@ namespace {
 			d2.n = result.y;
 			dataSet2.push_back(d2);
 
-			if ((f % (increment*128)) == 0) {
+			if ((f % (increment*512)) == 0) {
 				increment *= 2;
 			}
 		}

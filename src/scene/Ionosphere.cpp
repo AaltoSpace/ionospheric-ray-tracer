@@ -307,15 +307,16 @@ namespace scene {
 		double Y_T = 0;
 		double Y_L = 0;
 		if (Y > 0) {
-			double BTot = Application::getInstance().getApplicationConfig()
-					.getObject("magneticFields")["strength"].asDouble();
-			Vector3d k = Vector3d(0, 0, 1);
+			Json::Value magFields = Application::getInstance().getApplicationConfig()
+							.getArray("magneticFields");
+			double BTot = getMagneticFieldStrengthFromConfig();
+			Vector3d k = Config::getVector3dFromObject(magFields[0].get("direction", ""));
 			Vector3d B = Vector3d(BTot * sin(angleToMagField), 0, BTot * cos(angleToMagField));
 			Y_T = Y * k.cross(B).magnitude() / BTot;
 			Y_L = Y * k.dot(B) / BTot;
 		}
 		double Z = getCollisionFrequency() / angularFrequency;
-		BOOST_LOG_TRIVIAL(info) << "X:" << X << ",Y:" << Y << ",Z:" << Z << ",YT:" << Y_T;
+//		BOOST_LOG_TRIVIAL(info) << "X:" << X << ",Y:" << Y << ",Z:" << Z << ",YT:" << Y_T;
 		double alpha = (pow(Y_T, 4) * (pow(1.0 - X, 2) - pow(Z, 2)))
 				/(4.0 * pow(pow(1.0-X, 2) + pow(Z, 2), 2))
 				+ pow(Y_L, 2);
@@ -324,35 +325,35 @@ namespace scene {
 		ComplexDouble Ephi = ComplexNumberHelper::getInstance().complexSquareRoot(alpha, beta);
 		double E = Ephi.real();
 		double phi = Ephi.imag();
-		BOOST_LOG_TRIVIAL(info) << "a:" << alpha << ",b:" << beta << ",E:" << E << ",phi:" << phi;
+//		BOOST_LOG_TRIVIAL(info) << "a:" << alpha << ",b:" << beta << ",E:" << E << ",phi:" << phi;
 		//W = (Y_T^2*(1-X)) / (2*((1-X)^2)+Z^2);
 		double W = (pow(Y_T, 2) * (1.0 - X))/(2 * (pow(1.0 - X, 2) + pow(Z, 2) ));
 		//Q = (Y_T^2*Z)     / (2*((1-X)^2)+Z^2);
 		double Q = (pow(Y_T, 2) * Z)/(2.0 * (pow(1.0 - X, 2) + pow(Z, 2) ));
-//			% Derive two pure Real variables M and N:
-//			M(1) = (1-W+E)/X;
+		// Derive two pure Real variables M and N:
+		// M(1) = (1-W+E)/X;
 		double M_1 = (1.0 - W + E) / X;
-//			M(2) = (1-W-E)/X;
+		// M(2) = (1-W-E)/X;
 		double M_2 = (1.0 - W - E) / X;
-//			N(1) = (-Z -Q + Theta)/X;
+		// N(1) = (-Z -Q + Theta)/X;
 		double N_1 = (-Z -Q + phi) / X;
-//			N(2) = (-Z -Q - Theta)/X;
+		// N(2) = (-Z -Q - Theta)/X;
 		double N_2 = (-Z -Q - phi) / X;
 
-		BOOST_LOG_TRIVIAL(info) << "M1:" << M_1 << ",M2:" << M_2 << ",N1:" << N_1 << ",N2:" << N_2;
+//		BOOST_LOG_TRIVIAL(info) << "M1:" << M_1 << ",M2:" << M_2 << ",N1:" << N_1 << ",N2:" << N_2;
 
-//			Derive two pure Real variables A and B:
-//			A(1) = (1 - (M(1)/(M(1)^2 + N(1)^2)));
+		// Derive two pure Real variables A and B:
+		// A(1) = (1 - (M(1)/(M(1)^2 + N(1)^2)));
 		double A_1 = (1.0 - (M_1/(pow(M_1, 2) + pow(N_1, 2) )  ));
-//			A(2) = (1 - (M(2)/(M(2)^2 + N(2)^2)));
+		// A(2) = (1 - (M(2)/(M(2)^2 + N(2)^2)));
 		double A_2 = (1.0 - (M_2/(pow(M_2, 2) + pow(N_2, 2) )  ));
-//			B(1) = N(1)/(M(1)^2 + N(1)^2);
+		// B(1) = N(1)/(M(1)^2 + N(1)^2);
 		double B_1 = (N_1/(pow(M_1, 2) + pow(N_1, 2) )  );
-//			B(2) = N(2)/(M(2)^2 + N(2)^2);
+		// B(2) = N(2)/(M(2)^2 + N(2)^2);
 		double B_2 = (N_2/(pow(M_2, 2) + pow(N_2, 2) )  );
 
-		BOOST_LOG_TRIVIAL(info) << "1:" << ComplexNumberHelper::getInstance().complexSquareRoot(A_1, B_1);
-		BOOST_LOG_TRIVIAL(info) << "2:" << ComplexNumberHelper::getInstance().complexSquareRoot(A_2, B_2);
+//		BOOST_LOG_TRIVIAL(info) << "1:" << ComplexNumberHelper::getInstance().complexSquareRoot(A_1, B_1);
+//		BOOST_LOG_TRIVIAL(info) << "2:" << ComplexNumberHelper::getInstance().complexSquareRoot(A_2, B_2);
 
 		Vector2d result;
 		result.x = ComplexNumberHelper::getInstance().complexSquareRoot(A_1, B_1).real();
@@ -400,8 +401,7 @@ namespace scene {
 	 */
 	double Ionosphere::getGyroFrequency() {
 
-		double magneticFieldStrength = Application::getInstance().getApplicationConfig().getObject("magneticFields")["strength"].asDouble();
-		return Constants::ELEMENTARY_CHARGE * magneticFieldStrength / Constants::ELECTRON_MASS;
+		return Constants::ELEMENTARY_CHARGE * getMagneticFieldStrengthFromConfig() / Constants::ELECTRON_MASS;
 	}
 
 	/**
@@ -449,6 +449,22 @@ namespace scene {
 		}
 
 		return r->behaviour;
+	}
+
+	/**
+	 * Retrieve the magnetic field strength from the current configuration file
+	 * Return 0 if the value cannot be found in the config
+	 */
+	double Ionosphere::getMagneticFieldStrengthFromConfig() {
+
+		Json::Value magFields = Application::getInstance().getApplicationConfig()
+						.getArray("magneticFields");
+
+		if (magFields.isNull() || magFields.size() < 1) {
+			return 0;
+		}
+
+		return magFields[0].get("strength", "").asDouble();
 	}
 
 } /* namespace scene */

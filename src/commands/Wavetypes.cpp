@@ -27,9 +27,10 @@ namespace commands {
 	}
 
 	void Wavetypes::start() {
-		appConf = Config("config/config_nomagneticfield.json");
+
+		BOOST_LOG_TRIVIAL(info) << "Starting \"Wavetypes\" program";
+
 		conf = Config("config/scenario_test.json");
-		Application::getInstance().setApplicationConfig(appConf);
 		Application::getInstance().setCelestialConfig(conf);
 	}
 
@@ -45,6 +46,9 @@ namespace commands {
 	}
 
 	void Wavetypes::simulateOWaves() {
+
+		appConf = Config("config/config_nomagneticfield.json");
+		Application::getInstance().setApplicationConfig(appConf);
 
 		list<Data> dataSet;
 		Ionosphere io2;
@@ -73,6 +77,7 @@ namespace commands {
 	}
 
 	void Wavetypes::simulateXWaves() {
+
 		appConf = Config("config/config_simplemagneticfield.json");
 		Application::getInstance().setApplicationConfig(appConf);
 

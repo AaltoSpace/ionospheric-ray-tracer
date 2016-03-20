@@ -361,6 +361,30 @@ namespace {
 		ASSERT_NEAR(0, r.phaseAdvance, 1e-3);
 	}
 
+	TEST_F(IonosphereTest, ConfigNoMagnetismTest) {
+
+		Config appConf2 = Config("config/config_nomagneticfield.json");
+		Application::getInstance().setApplicationConfig(appConf2);
+
+		Ionosphere ioNoMagnetismTest;
+
+		double BTot = ioNoMagnetismTest.getMagneticFieldStrengthFromConfig();
+
+		ASSERT_EQ(0, BTot);
+	}
+
+	TEST_F(IonosphereTest, ConfigWithMagnetismTest) {
+
+		Config appConf2 = Config("config/config_simplemagneticfield.json");
+		Application::getInstance().setApplicationConfig(appConf2);
+
+		Ionosphere ioWithMagnetismTest;
+
+		double BTot = ioWithMagnetismTest.getMagneticFieldStrengthFromConfig();
+
+		ASSERT_NEAR(0.00005, BTot, 1e-7);
+	}
+
 	TEST_F(IonosphereTest, ExportDataTest) {
 
 		list<Data> dataSet;

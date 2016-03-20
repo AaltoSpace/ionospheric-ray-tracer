@@ -49,6 +49,11 @@ namespace core {
 
 		BOOST_LOG_TRIVIAL(debug) << "parseCommandLineArgs";
 
+		if (argc < 2) {
+			BOOST_LOG_TRIVIAL(fatal) << "You need to supply at least one argument!";
+			usage();
+		}
+
 		// argv[2+] = options
 		for (int i = 2; i < argc; i++) {
 

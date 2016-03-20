@@ -8,6 +8,7 @@
 #define CONFIG_H_
 
 #include "../../contrib/jsoncpp/value.h"
+#include "../math/Vector3d.h"
 
 namespace raytracer {
 namespace core {
@@ -19,6 +20,7 @@ namespace core {
 			Config(const char * filepath);
 			void loadFromFile(const char * filepath);
 			int getInt(const char * path);
+			static math::Vector3d getVector3dFromObject(const Json::Value obj);
 			double getDouble(const char * path);
 			Json::Value getArray(const char * path);
 			Json::Value getObject(const char * path);

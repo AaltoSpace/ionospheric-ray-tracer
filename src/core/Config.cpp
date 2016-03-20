@@ -49,6 +49,20 @@ namespace core {
 		return _doc.get(path, "").asInt();
 	}
 
+	math::Vector3d Config::getVector3dFromObject(const Json::Value obj) {
+
+		if (!obj.size() == 3){
+			cerr << obj.asCString() << " is not a 3D vector! It should have 3 elements.";
+		}
+
+		math::Vector3d output = math::Vector3d(
+			obj[0].asDouble(),
+			obj[1].asDouble(),
+			obj[2].asDouble());
+
+		return output;
+	}
+
 	double Config::getDouble(const char * path) {
 
 		if (!_doc.isMember(path)) {

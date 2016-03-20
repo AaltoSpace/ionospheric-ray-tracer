@@ -132,6 +132,13 @@ namespace scene {
 			 */
 			double getTEC();
 			int determineWaveBehaviour(Ray *r);
+
+			/**
+			 * Retrieve the magnetic field strength from the current configuration file
+			 * Return 0 if the value cannot be found in the config
+			 */
+			double getMagneticFieldStrengthFromConfig();
+
 			double layerHeight = 0;
 			double electronDensityVariability = 0;
 			static constexpr double surfaceCollisionFrequency = 4.5e10;	// s^-1

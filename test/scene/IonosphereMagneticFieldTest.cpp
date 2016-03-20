@@ -3,6 +3,7 @@
 #include "../../src/scene/Ionosphere.h"
 #include "../../src/tracer/Ray.h"
 #include "../../src/math/Constants.h"
+#include "../../src/math/Vector2d.h"
 #include "../../src/core/Config.h"
 #include "../../src/exporter/MagneticFieldExporter.h"
 
@@ -33,24 +34,65 @@ namespace {
 			Ionosphere io;
 	};
 
+	TEST_F(IonosphereMagneticFieldTest, ConfigNoMagnetismTest) {
+
+		Config appConf2 = Config("config/config_nomagneticfield.json");
+		Application::getInstance().setApplicationConfig(appConf2);
+		Json::Value magFields = Application::getInstance().getApplicationConfig()
+													.getArray("magneticFields");
+
+		ASSERT_EQ(0, magFields.size());
+		ASSERT_TRUE(magFields.isArray());
+	}
+
+	TEST_F(IonosphereMagneticFieldTest, ConfigWithMagnetismTest) {
+
+		Config appConf2 = Config("config/config_simplemagneticfield.json");
+		Application::getInstance().setApplicationConfig(appConf2);
+		Json::Value magFields = Application::getInstance().getApplicationConfig()
+													.getArray("magneticFields");
+
+		double BTot = magFields[0].get("strength", "").asDouble();
+		Vector3d k = Config::getVector3dFromObject(magFields[0].get("direction", ""));
+
+		ASSERT_TRUE(magFields.isArray());
+		ASSERT_EQ(1, magFields.size());
+		ASSERT_NEAR(0.00005, BTot, 1e-7);
+		ASSERT_EQ(0, k.x);
+		ASSERT_EQ(0, k.y);
+		ASSERT_EQ(1, k.z);
+	}
+
+	/**
+	 * n^2 reduces to:
+	 * n^2 = sqrt(1 - X)
+	 * X = w_pe^2 / w^2 --> Inf
+	 * Thus, complex n^2:
+	 * n^2 = 0 - w_pe j
+	 * Result of test: note that only real values are returned, not imaginary ones
+	 */
 	TEST_F(IonosphereMagneticFieldTest, VacuumTest) {
 
 		Ray r;
 		r.frequency = 1;
+		double PLASMA_FREQUENCY = 2.8e7;
 
 		io.setCollisionFrequency(0);
 		io.setElectronNumberDensity(0);
 
-		double nSquared = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_AHDR, 0);
+		double nSquared = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_AHDR, PLASMA_FREQUENCY);
+		Vector2d complexNSquared = io.getRefractiveIndexSquaredAHDR(&r, PLASMA_FREQUENCY);
 
-		ASSERT_EQ(1, nSquared);
+		ASSERT_EQ(0, nSquared);
+		ASSERT_EQ(0, complexNSquared.x);
+		ASSERT_EQ(0, complexNSquared.y);
 	}
 
 	TEST_F(IonosphereMagneticFieldTest, NonMagnetizedNonCollisional) {
 
 		Ray r;
 		double PLASMA_FREQUENCY = 2.8e7;
-		r.frequency = PLASMA_FREQUENCY / (2 * Constants::PI)+1;
+		r.frequency = PLASMA_FREQUENCY / (2 * Constants::PI*1.01); // slightly below plasma frequency
 
 		io.setCollisionFrequency(0);
 
@@ -62,7 +104,7 @@ namespace {
 
 		nSquared = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_AHDR, PLASMA_FREQUENCY);
 
-		ASSERT_LT(0, nSquared);
+		ASSERT_EQ(0, nSquared); // function does not return negative numbers, but 0 if n^2 < 0
 	}
 
 	TEST_F(IonosphereMagneticFieldTest, NonMagnetizedNonCollisional2) {
@@ -77,14 +119,5 @@ namespace {
 
 		ASSERT_GT(nSquared, 0);
 		ASSERT_LT(nSquared, 1);
-	}
-
-	/**
-	 * X wave: extraordinary wave. Simulate the index of refraction as a function of
-	 * wave frequency.
-	 */
-	TEST_F(IonosphereMagneticFieldTest, X_WaveExportTest) {
-
-
 	}
 }

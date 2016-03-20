@@ -27,15 +27,13 @@
             }
         }
 	],
-	"magneticFields": {
-		"location": {
-			"x": 0,
-			"y": 0,
-			"z": 0
-		},
-		"type": "dipole",
-		"strength": 0.00005
-	},
+	"magneticFields": [{
+			"location": [0, 0, 0],
+			"direction": [0, 0, 1],
+			"type": "dipole",
+			"strength": 0.00005
+		}
+	],
     "layerHeight": {
     	"constant": 1000,
     	"chapman": {

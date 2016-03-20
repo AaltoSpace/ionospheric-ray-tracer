@@ -67,6 +67,7 @@ namespace core {
 			}
 			Application(Application const&);      // Don't Implement.
 			void operator = (Application const&); // Don't implement
+			void usage();
 			void createScene();
 			void flushScene();
 			bool _isRunning;

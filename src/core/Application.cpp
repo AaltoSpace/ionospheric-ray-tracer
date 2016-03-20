@@ -18,11 +18,13 @@
 #include "../exporter/MatlabExporter.h"
 #include "../radio/AntennaFactory.h"
 #include "../radio/IsotropicAntenna.h"
+#include "../commands/Wavetypes.h"
 
 namespace raytracer {
 namespace core {
 
 	using namespace std;
+	using namespace commands;
 	using namespace tracer;
 	using namespace exporter;
 	using namespace math;
@@ -41,33 +43,17 @@ namespace core {
 		AntennaFactory::printMappedTypes();
 
 		parseCommandLineArgs(argc, argv);
-		start();
-		run();
 	}
 
 	void Application::parseCommandLineArgs(int argc, char * argv[]) {
 
 		BOOST_LOG_TRIVIAL(debug) << "parseCommandLineArgs";
 
-		for (int i = 0; i < argc; i++) {
+		// argv[2+] = options
+		for (int i = 2; i < argc; i++) {
 
 			if (strcmp(argv[i], "-h") == 0) {
-				std::cout 	<< "Ionospheric Ray Tracer\n\n"
-							<< "Synopsis:\n"
-							<< "\tirt [-opts] scenarioConfig\n\n"
-							<< "Description: \n"
-							<< "\tPerform ionospheric ray tracing on a celestial object described by the _celestialConfig json file. "
-							<< "If no config file is supplied, use a default scenario.\n\n"
-							<< "Options:\n"
-							<< "\t-c | --config\t Application config file\n"
-							<< "\t-i | --iterations\t The number of consecutive times every ray option should be run.\n"
-							<< "\t-h | --help\t This help.\n"
-							<< "\t-m | --magneticfield\t Include magnetic field effects.\n"
-							<< "\t-o | --output\t Path where output file should be stored.\n"
-							<< "\t-p | --parallelism\t Multithreading indicator.\n"
-							<< "\t-v | --verbose\t Verbose, display log output\n"
-							<< "\t-vv \t\t Very verbose, display log and debug output\n";
-				std::exit(0);
+				usage();
 
 			} else if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--scenario") == 0) {
 				_celestialConfigFile = argv[i+1];
@@ -101,16 +87,51 @@ namespace core {
 
 			} else if (strcmp(argv[i], "-fmax") == 0) {
 				_fmax = atoi(argv[i+1]);
-
 			}
 		}
 
-		// load scenario config file. Must be given.
-		if (!std::regex_match (argv[argc-1], std::regex("[A-Za-z0-9_/]+\.json") )) {
-			BOOST_LOG_TRIVIAL(fatal) << "No scenario file given! Exiting.";
-			std::exit(0);
+		// argv[0] = program name
+		// argv[1] = command
+		string commandArgument = argv[1];
+		if (commandArgument.substr(0, 1) == "-") {
+			BOOST_LOG_TRIVIAL(fatal) << "No command supplied! Usage:";
+			usage();
+		} else if (commandArgument.compare("simulation") == 0) {
+
+			// load scenario config file. Must be given.
+			if (!std::regex_match (argv[argc-1], std::regex("[A-Za-z0-9_/]+\.json") )) {
+				BOOST_LOG_TRIVIAL(fatal) << "No scenario file given! Exiting.";
+				std::exit(0);
+			}
+			_celestialConfigFile = argv[argc-1];
+
+			start();
+			run();
+		} else if (commandArgument.compare("wavetypes") == 0) {
+			Wavetypes cmd;
+			cmd.start();
+			cmd.run();
+			cmd.stop();
 		}
-		_celestialConfigFile = argv[argc-1];
+	}
+
+	void Application::usage() {
+		std::cout 	<< "Ionospheric Ray Tracer\n\n"
+					<< "Synopsis:\n"
+					<< "\tirt command [-opts] scenarioConfig\n\n"
+					<< "Description: \n"
+					<< "\tPerform ionospheric ray tracing on a celestial object described by the _celestialConfig json file. "
+					<< "If no config file is supplied, use a default scenario.\n\n"
+					<< "Options:\n"
+					<< "\t-c | --config\t Application config file\n"
+					<< "\t-i | --iterations\t The number of consecutive times every ray option should be run.\n"
+					<< "\t-h | --help\t This help.\n"
+					<< "\t-m | --magneticfield\t Include magnetic field effects.\n"
+					<< "\t-o | --output\t Path where output file should be stored.\n"
+					<< "\t-p | --parallelism\t Multithreading indicator.\n"
+					<< "\t-v | --verbose\t Verbose, display log output\n"
+					<< "\t-vv \t\t Very verbose, display log and debug output\n";
+		std::exit(0);
 	}
 
 	void Application::start() {

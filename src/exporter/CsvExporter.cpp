@@ -12,15 +12,13 @@
 namespace raytracer {
 namespace exporter {
 
-	using namespace std;
-
 	CsvExporter::CsvExporter() {
 		// TODO Auto-generated constructor stub
 	}
 
-	void CsvExporter::dump(const char *filepath, list<Data> dataset) {
+	void CsvExporter::dump(const char *filepath, std::list<Data> dataset) {
 
-		ofstream data;
+		std::ofstream data;
 		data.open(filepath);
 		data << "x,y\n";
 		while (!dataset.empty()) {

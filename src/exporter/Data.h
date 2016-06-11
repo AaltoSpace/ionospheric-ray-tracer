@@ -34,7 +34,7 @@ namespace exporter {
 			double n = 0;
 			scene::GeometryType collisionType = scene::GeometryType::none;
 
-			static constexpr int MAX_DATASET_SIZE = 100;
+			static constexpr int MAX_DATASET_SIZE = 1000000;
 	};
 
 } /* namespace exporter */

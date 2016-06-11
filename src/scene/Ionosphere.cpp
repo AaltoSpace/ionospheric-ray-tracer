@@ -77,7 +77,7 @@ namespace scene {
 
 		}
 
-//		exportData(r);
+		exportData(r);
 	}
 
 	/**

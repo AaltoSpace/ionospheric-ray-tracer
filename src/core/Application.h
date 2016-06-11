@@ -19,7 +19,6 @@
 #include "../scene/Terrain.h"
 #include "../tracer/Ray.h"
 #include "../exporter/Data.h"
-#include "../exporter/CsvExporter.h"
 #include "../exporter/IExporter.h"
 #include "../math/Constants.h"
 #include "../math/NormalDistribution.h"

@@ -18,7 +18,7 @@ class MatlabExporter : public IExporter {
 		MatlabExporter();
 		MatlabExporter(const char *filepath);
 		~MatlabExporter() {}
-		void dump(const char *filepath, list<Data> dataset);
+		void dump(const char *filepath, std::list<Data> dataset);
 
 };
 

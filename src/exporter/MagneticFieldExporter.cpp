@@ -13,15 +13,13 @@
 namespace raytracer {
 namespace exporter {
 
-	using namespace std;
-
 	MagneticFieldExporter::MagneticFieldExporter() {
 		// TODO Auto-generated constructor stub
 	}
 
-	void MagneticFieldExporter::dump(const char *filepath, list<Data> dataset) {
+	void MagneticFieldExporter::dump(const char *filepath, std::list<Data> dataset) {
 
-		ofstream data;
+		std::ofstream data;
 		data.open(filepath);
 		while (!dataset.empty()) {
 			data << std::fixed << std::setprecision(1) << dataset.front().rayNumber << ","

@@ -18,7 +18,7 @@ class MagneticFieldExporter : public IExporter {
 		MagneticFieldExporter();
 		MagneticFieldExporter(const char *filepath);
 		~MagneticFieldExporter() {}
-		void dump(const char *filepath, list<Data> dataset);
+		void dump(const char *filepath, std::list<Data> dataset);
 
 };
 

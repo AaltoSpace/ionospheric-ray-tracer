@@ -16,8 +16,6 @@
 namespace raytracer {
 namespace exporter {
 
-	using namespace std;
-
 	MatlabExporter::MatlabExporter() {
 		// TODO Auto-generated constructor stub
 	}
@@ -25,9 +23,9 @@ namespace exporter {
 	MatlabExporter::MatlabExporter(const char *filepath) {
 
 		// check if file exists
-		ifstream infile(filepath);
+		std::ifstream infile(filepath);
 		if (!infile.good()) {
-			ofstream data;
+			std::ofstream data;
 			data.open(filepath);
 			data.close();
 		} else {
@@ -36,10 +34,10 @@ namespace exporter {
 		}
 	}
 
-	void MatlabExporter::dump(const char *filepath, list<Data> dataset) {
+	void MatlabExporter::dump(const char *filepath, std::list<Data> dataset) {
 
-		ofstream data;
-		data.open(filepath, fstream::app);
+		std::ofstream data;
+		data.open(filepath, std::fstream::app);
 		while (!dataset.empty()) {
 			data << std::fixed << std::setprecision(1) << dataset.front().rayNumber << ","
 				<< std::setprecision(2) << dataset.front().x << ","

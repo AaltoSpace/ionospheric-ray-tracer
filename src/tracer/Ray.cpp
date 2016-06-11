@@ -184,7 +184,7 @@ namespace tracer {
 
 	void Ray::exportData(GeometryType collisionType) {
 
-		if (collisionType == GeometryType::terrain) {
+//		if (collisionType == GeometryType::terrain) {
 
 			Data d;
 			d.x = o.x;
@@ -203,7 +203,7 @@ namespace tracer {
 				d.aoa = calculateTerrainAngle();
 			}
 			Application::getInstance().addToDataset(d);
-		}
+//		}
 	}
 
 } /* namespace tracer */

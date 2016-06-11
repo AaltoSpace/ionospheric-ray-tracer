@@ -13,15 +13,13 @@
 namespace raytracer {
 namespace exporter {
 
-	using namespace std;
-
 	JsonExporter::JsonExporter() {
 		// TODO Auto-generated constructor stub
 	}
 
 	JsonExporter::JsonExporter(const char *filepath) {
 
-		ofstream data;
+		std::ofstream data;
 		data.open(filepath);
 		data.close();
 	}
@@ -43,10 +41,10 @@ namespace exporter {
 	 * 	},{...}]
 	 * }
 	 */
-	void JsonExporter::dump(const char *filepath, list<Data> dataset) {
+	void JsonExporter::dump(const char *filepath, std::list<Data> dataset) {
 
-		ofstream datafile;
-		datafile.open(filepath, fstream::app);
+		std::ofstream datafile;
+		datafile.open(filepath, std::fstream::app);
 
 		// construct beginning of file
 		datafile 	<< "{\n"

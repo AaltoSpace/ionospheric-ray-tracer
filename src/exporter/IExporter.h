@@ -13,15 +13,13 @@
 namespace raytracer {
 namespace exporter {
 
-	using namespace std;
-
 	class IExporter {
 
 		public:
 			IExporter() {}
 			IExporter(const char *filepath);
 			virtual ~IExporter() {}
-			virtual void dump(const char *filepath, list<Data> dataset) = 0;
+			virtual void dump(const char *filepath, std::list<Data> dataset) = 0;
 
 	};
 

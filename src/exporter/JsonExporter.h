@@ -19,7 +19,7 @@ class JsonExporter : public IExporter {
 		JsonExporter();
 		JsonExporter(const char *filepath);
 		~JsonExporter() {}
-		void dump(const char *filepath, list<Data> dataset);
+		void dump(const char *filepath, std::list<Data> dataset);
 
 };
 

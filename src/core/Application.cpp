@@ -16,6 +16,7 @@
 #include "../math/Matrix3d.h"
 #include "../exporter/JsonExporter.h"
 #include "../exporter/MatlabExporter.h"
+#include "../exporter/VtkExporter.h"
 #include "../radio/AntennaFactory.h"
 #include "../radio/IsotropicAntenna.h"
 #include "../commands/Wavetypes.h"
@@ -171,12 +172,13 @@ namespace core {
 
 		tp = boost::threadpool::pool(_parallelism);
 
-		BOOST_LOG_TRIVIAL(debug) << "applicationConfig: " << _applicationConfigFile << endl
-				<< _applicationConfig << endl
-				<< "celestialConfig:" << _celestialConfigFile << endl
+		BOOST_LOG_TRIVIAL(debug) << "applicationConfig: " << _applicationConfigFile << std::endl
+				<< _applicationConfig << std::endl
+				<< "celestialConfig:" << _celestialConfigFile << std::endl
 				<< _celestialConfig;
 
-		_me = new MatlabExporter(_outputFile);
+		_me = new VtkExporter(_outputFile);
+//		_me = new MatlabExporter(_outputFile);
 	}
 
 	void Application::run() {

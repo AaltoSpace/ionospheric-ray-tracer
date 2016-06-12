@@ -109,9 +109,6 @@ namespace scene {
 			finalHit.pos = io->mesh3d.centerpoint;
 			finalHit.g = io;
 			finalHit.o = GeometryType::ionosphere;
-//			if (foo == 6) {
-//				std::exit(0);
-//			}
 			io = nullptr;
 
 		} else {

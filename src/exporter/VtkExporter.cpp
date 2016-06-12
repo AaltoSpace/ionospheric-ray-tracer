@@ -78,7 +78,7 @@ namespace exporter {
 		}
 
 		// dataset attributes - lines
-		data << std::endl << "LINES " << datasetSize << " " << (datasetSize-1)*3 << std::endl;
+		data << std::endl << "LINES " << datasetSize-numRays << " " << (datasetSize-numRays)*3 << std::endl;
 		int lastCounter = 0;
 		for (const auto &n : mappedDataset) {
 			int i = 0;
@@ -88,7 +88,7 @@ namespace exporter {
 				}
 				i++;
 			}
-			lastCounter = i;
+			lastCounter += i;
 		}
 
 		data.close();

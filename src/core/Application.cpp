@@ -172,9 +172,9 @@ namespace core {
 
 		tp = boost::threadpool::pool(_parallelism);
 
-		BOOST_LOG_TRIVIAL(debug) << "applicationConfig: " << _applicationConfigFile << std::endl
-				<< _applicationConfig << std::endl
-				<< "celestialConfig:" << _celestialConfigFile << std::endl
+		BOOST_LOG_TRIVIAL(debug) << "applicationConfig: " << _applicationConfigFile << "\n"
+				<< _applicationConfig << "\n"
+				<< "celestialConfig:" << _celestialConfigFile << "\n"
 				<< _celestialConfig;
 
 		_me = new VtkExporter(_outputFile);
@@ -318,7 +318,7 @@ namespace core {
 		double R = _celestialConfig.getInt("radius");
 		double angularStepSize = _applicationConfig.getDouble("angularStepSize");
 
-		for (double latitude = 0 * Constants::PI; latitude <= 0.3 * Constants::PI; latitude += angularStepSize) {
+		for (double latitude = -0.5 * Constants::PI; latitude <= 0.5 * Constants::PI; latitude += angularStepSize) {
 			for (double longitude = 0 * Constants::PI; longitude <= 2 * Constants::PI; longitude += angularStepSize) {
 
 				Matrix3d latitudeM = Matrix3d::createRotationMatrix(latitude, Matrix3d::ROTATION_X);

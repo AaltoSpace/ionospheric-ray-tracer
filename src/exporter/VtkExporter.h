@@ -2,7 +2,7 @@
 // Name        : VtkExporter.h
 // Author      : Rian van Gijlswijk
 // Description : Exports a 2D dataset to a .vtk file for use in ParaView
-// More info   : http://www.visitusers.org/index.php?title=ASCII_VTK_File
+// More info   : http://www.visitusers.org/index.php?title=ASCII_VTK_Files
 //				 http://www.vtk.org/wp-content/uploads/2015/04/file-formats.pdf
 //============================================================================
 

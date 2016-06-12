@@ -18,6 +18,7 @@ namespace radio {
 
 	void ShortDipoleAntenna::setConfig(const Json::Value conf) {
 
+		_nominalSignalPower = conf.get("nominalSignalPower", "").asDouble();
 	}
 
 	double ShortDipoleAntenna::getSignalPowerAt(double azimuth, double elevation) {
@@ -33,8 +34,6 @@ namespace radio {
 
 		return 1.76 * pow(sin(elevation), 2);
 	}
-
-	AntennaRegister<ShortDipoleAntenna> ShortDipoleAntenna::reg("ShortDipoleAntenna");
 
 } /* namespace radio */
 } /* namespace raytracer */

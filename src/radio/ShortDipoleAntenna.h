@@ -9,7 +9,6 @@
 #define RADIO_ShortDipoleANTENNA_H_
 
 #include "IAntenna.h"
-#include "AntennaFactory.h"
 
 namespace raytracer {
 namespace radio {
@@ -21,9 +20,6 @@ namespace radio {
 			~ShortDipoleAntenna() {}
 			void setConfig(const Json::Value conf);
 			double getSignalPowerAt(double azimuth, double elevation);
-
-		private:
-			static AntennaRegister<ShortDipoleAntenna> reg;
 	};
 
 

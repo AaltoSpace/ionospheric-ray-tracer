@@ -15,15 +15,14 @@ namespace radio {
 	}
 
 	void IsotropicAntenna::setConfig(const Json::Value conf) {
-		// isotropic, do not implement
+
+		_nominalSignalPower = conf.get("nominalSignalPower", "").asDouble();
 	}
 
 	double IsotropicAntenna::getSignalPowerAt(double azimuth, double elevation) {
 
 		return _nominalSignalPower;
 	}
-
-	AntennaRegister<IsotropicAntenna> IsotropicAntenna::reg("IsotropicAntenna");
 
 
 } /* namespace radio */

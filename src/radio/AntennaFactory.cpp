@@ -9,7 +9,5 @@
 namespace raytracer {
 namespace radio {
 
-	AntennaFactory::map_type * AntennaFactory::map = new map_type();
-
 }
 }

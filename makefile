@@ -23,7 +23,7 @@ $(EXE):
 $(TESTEXE):
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	g++ -w -L/usr/include/boost/log -p -pg -Wall -fmessage-length=0 -std=c++11 -DBOOST_LOG_DYN_LINK \
+	g++ -w -L/usr/include/boost/log -p -pg -Wall -Wextra -fmessage-length=0 -std=c++11 -DBOOST_LOG_DYN_LINK \
 	test/main.cpp $(TESTCASES) $(SOURCES) $(LIBS) $(USERLIBS) \
 	-o $(TESTEXE)
 	@echo 'Finished building target: $@'

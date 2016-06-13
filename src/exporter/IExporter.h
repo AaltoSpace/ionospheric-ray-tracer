@@ -13,6 +13,13 @@
 namespace raytracer {
 namespace exporter {
 
+	enum ExporterType {
+		Csv = 1,
+		Matlab = 2,
+		Vtk = 3,
+		Json = 4
+	};
+
 	class IExporter {
 
 		public:

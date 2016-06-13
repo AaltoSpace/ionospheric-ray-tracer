@@ -64,11 +64,12 @@ namespace core {
 				_isRunning = false;
 				_numTracings = 0;
 			}
-			Application(Application const&);      // Don't Implement.
+			Application(Application const&);      // Don't Implement
 			void operator = (Application const&); // Don't implement
 			void usage();
 			void createScene();
 			void flushScene();
+			void configureExporter();
 			bool _isRunning;
 			bool _includeMagneticField = false;
 			int _numTracings;
@@ -84,7 +85,8 @@ namespace core {
 			int _fstep = 0;
 			int _fmax = 0;
 			SceneManager _scm;
-			IExporter* _me;
+			IExporter* _exporter;
+			ExporterType _exporterType = ExporterType::Matlab;
 
 	};
 

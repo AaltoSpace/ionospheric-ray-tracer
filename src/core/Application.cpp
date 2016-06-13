@@ -14,6 +14,7 @@
 #include "Timer.cpp"
 #include "CommandLine.h"
 #include "../math/Matrix3d.h"
+#include "../exporter/CsvExporter.h"
 #include "../exporter/JsonExporter.h"
 #include "../exporter/MatlabExporter.h"
 #include "../exporter/VtkExporter.h"
@@ -40,8 +41,6 @@ namespace core {
 	void Application::init(int argc, char * argv[]) {
 
 		BOOST_LOG_TRIVIAL(debug) << "Init application";
-
-//		AntennaFactory::printMappedTypes();
 
 		parseCommandLineArgs(argc, argv);
 	}
@@ -177,8 +176,7 @@ namespace core {
 				<< "celestialConfig:" << _celestialConfigFile << "\n"
 				<< _celestialConfig;
 
-		_me = new VtkExporter(_outputFile);
-//		_me = new MatlabExporter(_outputFile);
+		configureExporter();
 	}
 
 	void Application::run() {
@@ -296,7 +294,7 @@ namespace core {
 
 		//CsvExporter ce;
 		//ce.dump("Debug/data.csv", dataSet);
-		_me->dump(_outputFile, dataSet);
+		_exporter->dump(_outputFile, dataSet);
 
 	    BOOST_LOG_TRIVIAL(warning) << "Results stored at: " << _outputFile;
 	}
@@ -359,7 +357,7 @@ namespace core {
 		datasetMutex.lock();
 		dataSet.push_back(dat);
 		if (dataSet.size() > Data::MAX_DATASET_SIZE) {
-			_me->dump(_outputFile, dataSet);
+			_exporter->dump(_outputFile, dataSet);
 			dataSet.clear();
 		}
 		datasetMutex.unlock();
@@ -405,6 +403,31 @@ namespace core {
 	bool Application::includeMagneticFieldEffects() {
 
 		return _includeMagneticField;
+	}
+
+	void Application::configureExporter() {
+
+		std::string outputFileStr = string(_outputFile);
+		int pos = outputFileStr.find_last_of(".");
+		std::string fileext = outputFileStr.substr(pos+1);
+		BOOST_LOG_TRIVIAL(info) << "Found the following file extension for export: " << fileext;
+		if (fileext == "csv") {
+			_exporterType = ExporterType::Csv;
+			_exporter = new CsvExporter(_outputFile);
+			BOOST_LOG_TRIVIAL(info) << "CSV Exporter selected.\n";
+		} else if (fileext == "dat") {
+			_exporterType = ExporterType::Matlab;
+			_exporter = new MatlabExporter(_outputFile);
+			BOOST_LOG_TRIVIAL(info) << "Matlab Exporter selected.\n";
+		} else if (fileext == "vtk") {
+			_exporterType = ExporterType::Matlab;
+			_exporter = new VtkExporter(_outputFile);
+			BOOST_LOG_TRIVIAL(info) << "VTK Exporter selected.\n";
+		} else if (fileext == "json") {
+			_exporterType = ExporterType::Matlab;
+			_exporter = new JsonExporter(_outputFile);
+			BOOST_LOG_TRIVIAL(info) << "Json Exporter selected.\n";
+		}
 	}
 
 } /* namespace core */

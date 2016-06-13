@@ -17,6 +17,7 @@ class CsvExporter : public IExporter {
 
 	public:
 		CsvExporter();
+		CsvExporter(const char *filepath);
 		~CsvExporter() {}
 		void dump(const char *filepath, std::list<Data> dataset);
 

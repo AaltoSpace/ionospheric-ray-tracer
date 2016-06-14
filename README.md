@@ -10,4 +10,4 @@ developed by the Space department of Aalto to further support space research and
 # Setup and usage #
 The setup and usage of the simulator are explained in the [wiki](https://github.com/AaltoSpace/ionospheric-ray-tracer/wiki/Home):
 - The [setup guide](https://github.com/AaltoSpace/ionospheric-ray-tracer/wiki/Setup-guide) explains how to compile the product from source
-- The [user manual](https://github.com/AaltoSpace/ionospheric-ray-tracer/wiki/User-manual) explains how to use the product; covering the various operation modes and configuration settings.
+- The [quickstart manual](https://github.com/AaltoSpace/ionospheric-ray-tracer/wiki/Quickstart-manual) explains how to use the product; covering the various operation modes and configuration settings.

@@ -12,6 +12,10 @@
 #include "../../src/math/Constants.h"
 #include "../../src/core/Config.h"
 #include "../../src/exporter/MagneticFieldExporter.h"
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/utility/setup/file.hpp>
 
 namespace raytracer {
 namespace commands {
@@ -47,6 +51,8 @@ namespace commands {
 
 	void Wavetypes::simulateOWaves() {
 
+		BOOST_LOG_TRIVIAL(info) << "Simulating O-waves";
+
 		appConf = Config("config/config_nomagneticfield.json");
 		Application::getInstance().setApplicationConfig(appConf);
 
@@ -56,6 +62,7 @@ namespace commands {
 		int increment = 1;
 		int MAX = 30e6;
 		double PLASMA_FREQUENCY = 2.8e7;
+		io2.setCollisionFrequency(0);
 		io2.setElectronNumberDensity(0);
 
 		for (int f = 0; f < MAX; f += increment) {
@@ -73,10 +80,15 @@ namespace commands {
 		}
 
 		MagneticFieldExporter mfe;
-		mfe.dump("Debug/data_IonosphereO_WaveTest.dat", dataSet);
+		int dataSetSize = dataSet.size();
+		mfe.dump("data_IonosphereO_WaveTest.dat", dataSet);
+
+		BOOST_LOG_TRIVIAL(info) << "Simulation completed. " << dataSetSize << " datapoints generated.";
 	}
 
 	void Wavetypes::simulateXWaves() {
+
+		BOOST_LOG_TRIVIAL(info) << "Simulating X-waves";
 
 		appConf = Config("config/config_simplemagneticfield.json");
 		Application::getInstance().setApplicationConfig(appConf);
@@ -88,6 +100,8 @@ namespace commands {
 		int MAX = 30e6;
 		double PLASMA_FREQUENCY = 2.8e7;
 		io3.angleToMagField = Constants::PI/2.0;
+
+		io3.setCollisionFrequency(0);
 		io3.setElectronNumberDensity(0);
 
 		for (int f = 0; f < MAX; f += increment) {
@@ -109,8 +123,11 @@ namespace commands {
 		}
 
 		MagneticFieldExporter mfe;
-		mfe.dump("Debug/data_IonosphereX_WaveTest_1.dat", dataSet);
-		mfe.dump("Debug/data_IonosphereX_WaveTest_2.dat", dataSet2);
+		int dataSetSize = dataSet.size() + dataSet2.size();
+		mfe.dump("data_IonosphereX_WaveTest_1.dat", dataSet);
+		mfe.dump("data_IonosphereX_WaveTest_2.dat", dataSet2);
+
+		BOOST_LOG_TRIVIAL(info) << "Simulation completed. " << dataSetSize << " datapoints generated.";
 	}
 
 } /* namespace commands */

@@ -27,5 +27,12 @@
 	        "neutralScaleHeight": 7600,
 	        "type": "chapman"
 	    }]
-    }
+    },
+	"magneticFields": [{
+			"location": [0, 0, 0],
+			"direction": [0, 0, 1],
+			"type": "dipole",
+			"strength": 0.00005
+		}
+	]
 }

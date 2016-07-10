@@ -1,0 +1,51 @@
+{
+    "parallelism": 4,
+    "iterations": 1,
+    "tracingLimit": 5000,
+    "angularStepSize": "0.03491",
+    "frequencies": {
+        "min": 6000000,
+        "step": 500000,
+        "max": 6000000
+    },
+    "SZA": {
+		"min": 226.1,
+		"step": 1,
+		"max": 226.1
+	},
+	"azimuth": {
+		"min": 0.0,
+		"step": 20.0,
+		"max": 0.0	
+	},
+	"beacons": [{
+            "latitudeOffset": 0,
+            "longitudeOffset": -4.732,
+            "altitude": 248000,
+            "antenna": {
+                "type": "IsotropicAntenna",
+                "nominalSignalPower": 1.0
+            }
+        }
+	],
+	"magneticFields": {
+		"location": {
+			"x": 0,
+			"y": 0,
+			"z": 0
+		},
+		"type": "dipole",
+		"strength": 1000
+	},
+    "layerHeight": {
+    	"constant": 250,
+    	"chapman": {
+    			"dhnmin": 300,
+    			"dhnmax": 2500
+    	},
+    	"parabolic": {
+    			"dhnmin": 300,
+    			"dhnmax": 2500
+    	}
+    }
+}

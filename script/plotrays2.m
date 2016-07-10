@@ -2,8 +2,9 @@ clc;
 clear all;
 close all;
 
-angles = 10:10:80;
-frequencies = 5e6:0.5e6:5e6;
+angles = 226.1:1:226.1;
+% angles = 45:1:45
+frequencies = 6e6:0.5e6:6.0e6;
 ang=0:0.01:2*pi;
 
 load ../Debug/data.dat;
@@ -22,11 +23,11 @@ z = zeros(length(angles), length(data));
 h = zeros(length(angles), length(data));
 for f=1:length(frequencies)
     for n=1:length(angles)
-        xCur = data(abs(data(:,8) - deg2rad(angles(n))) < 0.1 & data(:,9) == frequencies(f), 2);
+        xCur = data(abs(data(:,8) - deg2rad(angles(n))) < 0.01 & data(:,9) == frequencies(f), 2);
         x(n,1:length(xCur)) = xCur;
-        hCur = data(abs(data(:,8) - deg2rad(angles(n))) < 0.1 & data(:,9) == frequencies(f), 3);
+        hCur = data(abs(data(:,8) - deg2rad(angles(n))) < 0.01 & data(:,9) == frequencies(f), 3);
         h(n,1:length(hCur)) = hCur;
-        zCur = data(abs(data(:,8) - deg2rad(angles(n))) < 0.1 & data(:,9) == frequencies(f), 4);
+        zCur = data(abs(data(:,8) - deg2rad(angles(n))) < 0.01 & data(:,9) == frequencies(f), 4);
         z(n,1:length(zCur)) = zCur;
         %omega_p = data(:,3);
         %Ne = data(:,4);
@@ -49,7 +50,7 @@ for f=1:length(frequencies)
     plot(0 + (3390+200)*cos(ang), (3390+200) * sin(ang)-3390, 'LineStyle', '--', 'Color', 'black')
     plot(0 + (3390+25)*cos(ang), (3390+25) * sin(ang)-3390, 'LineStyle', '--', 'Color', 'black')
     
-    title(['frequency: ' num2str(frequencies(f)/1e6) ' MHz']);
+    title(['frequency: ' num2str(frequencies(f)/1e6) ' MHz, SZA=226.1^\circ, lon_{s}=-4.732^\circ, alt_{s}=248 km']);
     grid on
     xlabel('Cartesian distance [km]')
     ylabel('altitude [km]')

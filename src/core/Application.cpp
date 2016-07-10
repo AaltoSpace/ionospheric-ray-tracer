@@ -229,6 +229,7 @@ namespace core {
 
 				double latitudeOffset = beacons[b].get("latitudeOffset", "").asDouble() * Constants::PI / 180.0;
 				double longitudeOffset = beacons[b].get("longitudeOffset", "").asDouble() * Constants::PI / 180.0;
+				double beaconAltitude = beacons[b].get("altitude", "").asDouble();
 				const Json::Value antenna = beacons[b].get("antenna", "");
 //				IAntenna* ant = AntennaFactory::createInstance(antenna.get("type", "").asString());
 				IAntenna* ant = new IsotropicAntenna();
@@ -238,7 +239,7 @@ namespace core {
 				Matrix3d longitude = Matrix3d::createRotationMatrix(longitudeOffset, Matrix3d::ROTATION_Z);
 				Matrix3d rotationMatrix = latitude * longitude;
 
-				Vector3d startPosition = rotationMatrix * Vector3d(0, (radius+2), 0);
+				Vector3d startPosition = rotationMatrix * Vector3d(0, (radius+2+beaconAltitude), 0);
 				BOOST_LOG_TRIVIAL(debug) << startPosition;
 
 				for(double azimuth = azimuthMin; azimuth <= azimuthMax; azimuth += azimuthStep) {

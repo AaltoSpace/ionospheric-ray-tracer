@@ -15,16 +15,22 @@
     	"step": 125,
     	"end": 250000,
 	    "layers": [{
-	        "name" : "M2 Layer",
-	        "peakProductionAltitude": 130000,
-	        "electronPeakDensity": "1.8e11",
-	        "neutralScaleHeight": 11000,
+	        "name" : "toplayer",
+	        "peakProductionAltitude": 200000,
+	        "electronPeakDensity": "1.0e11",
+	        "neutralScaleHeight": 1,
 	        "type": "chapman"
 	    },{
-	        "name" : "M1 Layer",
-	        "peakProductionAltitude": 110000,
+	        "name" : "layer two",
+	        "peakProductionAltitude": 150000,
 	        "electronPeakDensity": "9.0e10",
-	        "neutralScaleHeight": 7600,
+	        "neutralScaleHeight": 0,
+	        "type": "chapman"
+	    },{
+	        "name" : "layer one",
+	        "peakProductionAltitude": 100000,
+	        "electronPeakDensity": "1e10",
+	        "neutralScaleHeight": 0,
 	        "type": "chapman"
 	    }]
     }

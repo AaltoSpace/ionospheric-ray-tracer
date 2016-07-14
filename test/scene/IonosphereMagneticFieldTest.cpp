@@ -81,7 +81,7 @@ namespace {
 		io.setElectronNumberDensity(0);
 
 		double nSquared = io.getRefractiveIndexSquared(&r, Ionosphere::REFRACTION_AHDR, PLASMA_FREQUENCY);
-		Vector2d complexNSquared = io.getRefractiveIndexSquaredAHDR(&r, PLASMA_FREQUENCY);
+		Vector2d complexNSquared = io.getRefractiveIndexSquaredAHDR(&r, 0, PLASMA_FREQUENCY);
 
 		ASSERT_EQ(0, nSquared);
 		ASSERT_EQ(0, complexNSquared.x);

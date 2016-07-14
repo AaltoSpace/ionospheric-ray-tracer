@@ -85,7 +85,27 @@ namespace scene {
 	 */
 	void Ionosphere::refract(Ray *r) {
 
-		double refractiveIndex = getRefractiveIndex(r, Ionosphere::REFRACTION_SIMPLE);
+		double refractiveIndex = 0;
+
+		// load magnetic field parameters
+		Json::Value magFields = Application::getInstance().getApplicationConfig()
+									.getArray("magneticFields");
+		double magneticFieldStrength = getMagneticFieldStrengthFromConfig();
+		Vector3d k = Config::getVector3dFromObject(magFields[0].get("direction", ""));
+
+		// calculate the nonlinear refractive index in a magnetized environment
+		if (magneticFieldStrength > 0) {
+			// todo: calculate correct angle to magnetic field
+			double angleToMagfield = 0;//acos(r->d.dot(k));
+			// NONLINEAR solver: iterate the part below
+			// todo: implement nonlinear solver iterator
+			Vector2d refractiveIndex = getRefractiveIndexSquaredAHDR(r, angleToMagfield, getPlasmaFrequency());
+			// todo: recalculate theta_r based on new refractive index
+
+		// calculate the linear refractive index in a nonmagnetized environment
+		} else {
+			refractiveIndex = getRefractiveIndexSquaredSimple(r, getPlasmaFrequency());
+		}
 		double theta_i = getIncidentAngle(r);
 
 		double ratio = r->previousRefractiveIndex/refractiveIndex;
@@ -282,8 +302,8 @@ namespace scene {
 
 		if (m == REFRACTION_SIMPLE) {
 			return getRefractiveIndexSquaredSimple(r, plasmaFrequency);
-		} else if (m == REFRACTION_AHDR) {
-			return getRefractiveIndexSquaredAHDR(r, plasmaFrequency).x;
+//		} else if (m == REFRACTION_AHDR) {
+//			return getRefractiveIndexSquaredAHDR(r, plasmaFrequency).x;
 		} else {
 			BOOST_LOG_TRIVIAL(error) << "The given refractive method does not exist!";
 		}
@@ -298,7 +318,7 @@ namespace scene {
 		return 1 - X;
 	}
 
-	Vector2d Ionosphere::getRefractiveIndexSquaredAHDR(Ray *r, double plasmaFrequency) {
+	Vector2d Ionosphere::getRefractiveIndexSquaredAHDR(Ray *r, double angleToMagField, double plasmaFrequency) {
 
 		double angularFrequency = 2 * Constants::PI * r->frequency;
 		double X = pow(plasmaFrequency, 2) / pow(angularFrequency, 2);
@@ -312,8 +332,8 @@ namespace scene {
 			double BTot = getMagneticFieldStrengthFromConfig();
 			Vector3d k = Config::getVector3dFromObject(magFields[0].get("direction", ""));
 			Vector3d B = Vector3d(BTot * sin(angleToMagField), 0, BTot * cos(angleToMagField));
-			Y_T = Y * k.cross(B).magnitude() / BTot;
-			Y_L = Y * k.dot(B) / BTot;
+			Y_T = Y * sin(angleToMagField); //Y * Y * k.cross(B).magnitude() / BTot;
+			Y_L = Y * cos(angleToMagField); //k.dot(B) / BTot;
 		}
 		double Z = getCollisionFrequency() / angularFrequency;
 //		BOOST_LOG_TRIVIAL(info) << "X:" << X << ",Y:" << Y << ",Z:" << Z << ",YT:" << Y_T;

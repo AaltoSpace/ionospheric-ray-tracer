@@ -67,7 +67,7 @@ namespace commands {
 
 		for (int f = 0; f < MAX; f += increment) {
 			r.frequency = f;
-			Vector2d result = io2.getRefractiveIndexSquaredAHDR(&r, PLASMA_FREQUENCY);
+			Vector2d result = io2.getRefractiveIndexSquaredAHDR(&r, 0, PLASMA_FREQUENCY);
 			Data d;
 			d.frequency = f;
 			d.omega_p = PLASMA_FREQUENCY;
@@ -99,14 +99,14 @@ namespace commands {
 		int increment = 1;
 		int MAX = 30e6;
 		double PLASMA_FREQUENCY = 2.8e7;
-		io3.angleToMagField = Constants::PI/2.0;
+		double angleToMagField = Constants::PI/2.0;
 
 		io3.setCollisionFrequency(0);
 		io3.setElectronNumberDensity(0);
 
 		for (int f = 0; f < MAX; f += increment) {
 			r.frequency = f;
-			Vector2d result = io3.getRefractiveIndexSquaredAHDR(&r, PLASMA_FREQUENCY);
+			Vector2d result = io3.getRefractiveIndexSquaredAHDR(&r, angleToMagField, PLASMA_FREQUENCY);
 			Data d, d2;
 			d.frequency = f;
 			d.omega_p = PLASMA_FREQUENCY;

@@ -56,6 +56,7 @@ namespace scene {
 	void Ionosphere::interact(Ray *r, Vector3d &hitpos) {
 
 		BOOST_LOG_TRIVIAL(debug) << "Interact with ionosphere at alt " << r->altitude;
+		altitude = r->altitude;
 
 		setup();
 
@@ -91,11 +92,12 @@ namespace scene {
 		Json::Value magFields = Application::getInstance().getApplicationConfig()
 									.getArray("magneticFields");
 		double magneticFieldStrength = getMagneticFieldStrengthFromConfig();
-		Vector3d k = Config::getVector3dFromObject(magFields[0].get("direction", ""));
 
 		// calculate the nonlinear refractive index in a magnetized environment
 		if (magneticFieldStrength > 0) {
+			BOOST_LOG_TRIVIAL(debug) << "Retrieving refraction for magnetized ionosphere";
 			// todo: calculate correct angle to magnetic field
+			Vector3d k = Config::getVector3dFromObject(magFields[0].get("direction", ""));
 			double angleToMagfield = 0;//acos(r->d.dot(k));
 			// NONLINEAR solver: iterate the part below
 			// todo: implement nonlinear solver iterator
@@ -104,7 +106,7 @@ namespace scene {
 
 		// calculate the linear refractive index in a nonmagnetized environment
 		} else {
-			refractiveIndex = getRefractiveIndexSquaredSimple(r, getPlasmaFrequency());
+			refractiveIndex = sqrt(getRefractiveIndexSquaredSimple(r, getPlasmaFrequency()));
 		}
 		double theta_i = getIncidentAngle(r);
 
@@ -285,6 +287,8 @@ namespace scene {
 				exp(0.5f * (1.0f - normalizedHeight - (1.0 / cos(SZA)) * exp(-normalizedHeight) ));
 
 		_electronNumberDensity += electronNumberDensity;
+
+		BOOST_LOG_TRIVIAL(debug) << "Set n_e at alt=" << altitude << " to " << _electronNumberDensity;
 	}
 
 	/**

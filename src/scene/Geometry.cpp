@@ -54,7 +54,7 @@ namespace scene {
 	 */
 	void Geometry::calculateAltitude() {
 
-		if (altitude < 0) {
+		if (altitude < 1) {
 
 			altitude = sqrt(pow(mesh3d.centerpoint.x, 2) + pow(mesh3d.centerpoint.y, 2) + pow(mesh3d.centerpoint.z, 2))
 					- core::Application::getInstance().getCelestialConfig().getInt("radius");

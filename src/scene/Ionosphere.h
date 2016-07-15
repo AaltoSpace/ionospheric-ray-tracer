@@ -139,6 +139,7 @@ namespace scene {
 			 */
 			double getMagneticFieldStrengthFromConfig();
 
+			double angleToMagField = 0;
 			double layerHeight = 0;
 			double electronDensityVariability = 0;
 			static constexpr double surfaceCollisionFrequency = 4.5e10;	// s^-1
